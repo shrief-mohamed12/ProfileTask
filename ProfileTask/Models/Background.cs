@@ -2,7 +2,7 @@
 
 namespace ProfileTask.Models
 {
-    public class Backgound
+    public class Background
     {
         [Key]
         int Id { get; set; }
