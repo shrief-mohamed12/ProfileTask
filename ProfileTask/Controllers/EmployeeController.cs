@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProfileTask.DTOs;
 using ProfileTask.Models;
 
 namespace ProfileTask.Controllers

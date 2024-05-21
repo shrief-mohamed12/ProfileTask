@@ -1,83 +1,175 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProfileTask.Models;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ProfileTask.Controllers
+namespace YourNamespace.Controllers
 {
     public class BackgroundController : Controller
     {
-        // GET: BackgroundController
-        public ActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public BackgroundController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Backgrounds
+        public async Task<IActionResult> Index()
+        {
+            var backgrounds = await _context.backgrounds.Include(b => b.Employee).ToListAsync();
+            return View(backgrounds);
+        }
+
+        // GET: Backgrounds/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var background = await _context.backgrounds
+                .Include(b => b.Employee)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (background == null)
+            {
+                return NotFound();
+            }
+
+            return View(background);
+        }
+
+        // GET: Backgrounds/Create
+        public IActionResult Create()
         {
             return View();
         }
 
-        // GET: BackgroundController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: BackgroundController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: BackgroundController/Create
+        // POST: Backgrounds/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,dateFrom,dateTo")] Background background)
         {
-            try
+            if (ModelState.IsValid)
             {
+                if (background.Picture != null)
+                {
+                    // Handle file upload
+                    var filePath = Path.Combine("wwwroot/uploads", background.Picture.FileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await background.Picture.CopyToAsync(stream);
+                    }
+
+                    background.BackgroundPicture = "/uploads/" + background.Picture.FileName;
+                }
+
+                _context.Add(background);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(background);
         }
 
-        // GET: BackgroundController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Backgrounds/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var background = await _context.backgrounds.FindAsync(id);
+            if (background == null)
+            {
+                return NotFound();
+            }
+            return View(background);
         }
 
-        // POST: BackgroundController/Edit/5
+        // POST: Backgrounds/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,dateFrom,dateTo")] Background background)
         {
-            try
+            if (id != background.Id)
             {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (background.Picture != null)
+                    {
+                        // Handle file upload
+                        var filePath = Path.Combine("wwwroot/uploads", background.Picture.FileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await background.Picture.CopyToAsync(stream);
+                        }
+
+                        background.BackgroundPicture = "/uploads/" + background.Picture.FileName;
+                    }
+
+                    _context.Update(background);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BackgroundExists(background.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(background);
         }
 
-        // GET: BackgroundController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Backgrounds/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var background = await _context.backgrounds
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (background == null)
+            {
+                return NotFound();
+            }
+
+            return View(background);
         }
 
-        // POST: BackgroundController/Delete/5
-        [HttpPost]
+        // POST: Backgrounds/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var background = await _context.backgrounds.FindAsync(id);
+            _context.backgrounds.Remove(background);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool BackgroundExists(int id)
+        {
+            return _context.backgrounds.Any(e => e.Id == id);
         }
     }
 }
