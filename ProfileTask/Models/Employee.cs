@@ -11,12 +11,12 @@ namespace ProfileTask.Models
         public string backgroundPicture { get; set; }
         public string bmployeePicture { get; set; }
         public string about  { get; set; }
-        List<Note> notes { get; set; }
-        List<Contacts> contacts { get; set;}
-        List<Background> backgrounds { get; set; }
-        List<Education> educations { get; set; }
-        List<Licenses> Licenses { get; set; }
-        List<OtherEx> otherExperience { get; set; }
+        public List<Note> notes { get; set; }
+        public List<Contacts> contacts { get; set;}
+        public List<Background> backgrounds { get; set; }
+        public List<Education> educations { get; set; }
+        public List<Licenses> Licenses { get; set; }
+        public List<OtherEx> otherExperience { get; set; }
 
     }
 }

@@ -3,81 +3,154 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ProfileTask.Controllers
 {
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using ProfileTask.Models;
+    using System.Threading.Tasks;
+
     public class EmployeeController : Controller
     {
-        // GET: EmployeeController
-        public ActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public EmployeeController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Employees
+        public async Task<IActionResult> Index()
+        {
+            var result = await _context.Employees.ToListAsync();
+            return View(result);
+        }
+
+        // GET: Employees/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _context.Employees
+                .Include(e => e.notes)
+                .Include(e => e.contacts)
+                .Include(e => e.backgrounds)
+                .Include(e => e.educations)
+                .Include(e => e.Licenses)
+                .Include(e => e.otherExperience)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return View(employee);
+        }
+
+        // GET: Employees/Create
+        public IActionResult Create()
         {
             return View();
         }
 
-        // GET: EmployeeController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: EmployeeController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: EmployeeController/Create
+        // POST: Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,employeeName,employeeJop,backgroundPicture,bmployeePicture,about")] Employee employee)
         {
-            try
+            if (ModelState.IsValid)
             {
+                _context.Add(employee);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(employee);
         }
 
-        // GET: EmployeeController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Employees/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            return View(employee);
         }
 
-        // POST: EmployeeController/Edit/5
+        // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,employeeName,employeeJop,backgroundPicture,bmployeePicture,about")] Employee employee)
         {
-            try
+            if (id != employee.Id)
             {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(employee);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EmployeeExists(employee.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(employee);
         }
 
-        // GET: EmployeeController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Employees/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return View(employee);
         }
 
-        // POST: EmployeeController/Delete/5
-        [HttpPost]
+        // POST: Employees/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var employee = await _context.Employees.FindAsync(id);
+            _context.Employees.Remove(employee);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool EmployeeExists(int id)
+        {
+            return _context.Employees.Any(e => e.Id == id);
         }
     }
+
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProfileTask.Models;
 
@@ -11,9 +12,10 @@ using ProfileTask.Models;
 namespace ProfileTask.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240521085326_alterTables")]
+    partial class alterTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,7 +269,7 @@ namespace ProfileTask.Migrations
             modelBuilder.Entity("ProfileTask.Models.Background", b =>
                 {
                     b.HasOne("ProfileTask.Models.Employee", "Employee")
-                        .WithMany("backgrounds")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -278,7 +280,7 @@ namespace ProfileTask.Migrations
             modelBuilder.Entity("ProfileTask.Models.Contacts", b =>
                 {
                     b.HasOne("ProfileTask.Models.Employee", "Employee")
-                        .WithMany("contacts")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -289,7 +291,7 @@ namespace ProfileTask.Migrations
             modelBuilder.Entity("ProfileTask.Models.Education", b =>
                 {
                     b.HasOne("ProfileTask.Models.Employee", "Employee")
-                        .WithMany("educations")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -300,7 +302,7 @@ namespace ProfileTask.Migrations
             modelBuilder.Entity("ProfileTask.Models.Licenses", b =>
                 {
                     b.HasOne("ProfileTask.Models.Employee", "Employee")
-                        .WithMany("Licenses")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -311,7 +313,7 @@ namespace ProfileTask.Migrations
             modelBuilder.Entity("ProfileTask.Models.Note", b =>
                 {
                     b.HasOne("ProfileTask.Models.Employee", "Employee")
-                        .WithMany("notes")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -322,27 +324,12 @@ namespace ProfileTask.Migrations
             modelBuilder.Entity("ProfileTask.Models.OtherEx", b =>
                 {
                     b.HasOne("ProfileTask.Models.Employee", "Employee")
-                        .WithMany("otherExperience")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("ProfileTask.Models.Employee", b =>
-                {
-                    b.Navigation("Licenses");
-
-                    b.Navigation("backgrounds");
-
-                    b.Navigation("contacts");
-
-                    b.Navigation("educations");
-
-                    b.Navigation("notes");
-
-                    b.Navigation("otherExperience");
                 });
 #pragma warning restore 612, 618
         }
