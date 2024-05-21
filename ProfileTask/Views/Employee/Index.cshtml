@@ -1,14 +1,13 @@
-﻿@model IEnumerable<ProfileTask.Models.Employee>
+﻿@model IEnumerable< ProfileTask.Models.Employee>
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Employees";
 }
 
-<h1>Index</h1>
+<h1>Employees</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -20,10 +19,10 @@
                 @Html.DisplayNameFor(model => model.employeeJop)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.backgroundPicture)
+                @Html.DisplayNameFor(model => model.backgroundPicturePath)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.employeePicture)
+                @Html.DisplayNameFor(model => model.employeePicturePath)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.about)
@@ -32,7 +31,8 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model)
+    {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.employeeName)
@@ -41,20 +41,20 @@
                 @Html.DisplayFor(modelItem => item.employeeJop)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.backgroundPicture)
+                <img src="@item.backgroundPicturePath" alt="Background Picture" style="max-width: 100px;" />
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.employeePicture)
+                <img src="@item.employeePicturePath" alt="Employee Picture" style="max-width: 100px;" />
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.about)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>

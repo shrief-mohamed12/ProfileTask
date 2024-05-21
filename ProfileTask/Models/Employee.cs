@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProfileTask.Models
 {
@@ -8,8 +9,12 @@ namespace ProfileTask.Models
        public  int Id { get; set; }
         public string employeeName { get; set; }
         public string employeeJop { get; set; }
-        public string backgroundPicture { get; set; }
-        public string employeePicture { get; set; }
+        [NotMapped]
+        public IFormFile backgroundPicture { get; set; }
+        [NotMapped]
+        public IFormFile employeePicture { get; set; }
+        public string backgroundPicturePath { get; set; }
+        public string employeePicturePath { get; set; }
         public string about  { get; set; }
         public List<Note> notes { get; set; }
         public List<Contacts> contacts { get; set;}

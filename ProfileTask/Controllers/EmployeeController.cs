@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProfileTask.DTOs;
 using ProfileTask.Models;
-using System.Threading.Tasks;
 
 namespace ProfileTask.Controllers
 {
@@ -32,14 +30,12 @@ namespace ProfileTask.Controllers
             }
 
             var employee = await _context.Employees
-                .Include(e => e.notes)
-                .Include(e => e.contacts)
-                .Include(e => e.backgrounds)
-                .Include(e => e.educations)
-                .Include(e => e.Licenses)
-                .Include(e => e.otherExperience)
+                .Include(x=>x.Licenses)
+                .Include(x=>x.notes)
+                .Include(x=>x.backgrounds)
+                .Include(x=>x.contacts)
+                .Include(x=>x.otherExperience)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (employee == null)
             {
                 return NotFound();
@@ -57,15 +53,43 @@ namespace ProfileTask.Controllers
         // POST: Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,employeeName,employeeJop,backgroundPicture,bmployeePicture,about")] Employee employee)
+        public async Task<IActionResult> Create([Bind("Id,employeeName,employeeJop,backgroundPicture,employeePicture,about")] Employee employee)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(employee);
+                if (employee.backgroundPicture != null)
+                {
+                    var backgroundPicturePath = Path.Combine("wwwroot/uploads", employee.backgroundPicture.FileName);
+                    using (var stream = new FileStream(backgroundPicturePath, FileMode.Create))
+                    {
+                        await employee.backgroundPicture.CopyToAsync(stream);
+                    }
+                    // Save the relative path to the database
+                    employee.backgroundPicturePath = backgroundPicturePath.Replace("wwwroot", "");
+                }
+
+                if (employee.employeePicture != null)
+                {
+                    var employeePicturePath = Path.Combine("wwwroot/uploads", employee.employeePicture.FileName);
+                    using (var stream = new FileStream(employeePicturePath, FileMode.Create))
+                    {
+                        await employee.employeePicture.CopyToAsync(stream);
+                    }
+                    // Save the relative path to the database
+                    employee.employeePicturePath = employeePicturePath.Replace("wwwroot", "");
+                }
+
+                await _context.AddAsync(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            
+            } 
+            
+            catch (Exception ex) 
+            { 
+              return null ;
             }
-            return View(employee);
+              
         }
 
         // GET: Employees/Edit/5
@@ -87,17 +111,56 @@ namespace ProfileTask.Controllers
         // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,employeeName,employeeJop,backgroundPicture,bmployeePicture,about")] Employee employee)
+      
+        public async Task<IActionResult> Edit(int id, [Bind("Id,employeeName,employeeJop,backgroundPicture,employeePicture,about")] Employee employee)
         {
             if (id != employee.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 try
                 {
+                    var existingEmployee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+                    if (existingEmployee == null)
+                    {
+                        return NotFound();
+                    }
+
+                    if (employee.backgroundPicture != null)
+                    {
+                        var backgroundPicturePath = Path.Combine("wwwroot/uploads", employee.backgroundPicture.FileName);
+                        using (var stream = new FileStream(backgroundPicturePath, FileMode.Create))
+                        {
+                            await employee.backgroundPicture.CopyToAsync(stream);
+                        }
+                        // Save the relative path to the database
+                        employee.backgroundPicturePath = backgroundPicturePath.Replace("wwwroot", "");
+                    }
+                    else
+                    {
+                        // Retain the old background picture path if no new file is provided
+                        employee.backgroundPicturePath = existingEmployee.backgroundPicturePath;
+                    }
+
+                    if (employee.employeePicture != null)
+                    {
+                        var employeePicturePath = Path.Combine("wwwroot/uploads", employee.employeePicture.FileName);
+                        using (var stream = new FileStream(employeePicturePath, FileMode.Create))
+                        {
+                            await employee.employeePicture.CopyToAsync(stream);
+                        }
+                        // Save the relative path to the database
+                        employee.employeePicturePath = employeePicturePath.Replace("wwwroot", "");
+                    }
+                    else
+                    {
+                        // Retain the old employee picture path if no new file is provided
+                        employee.employeePicturePath = existingEmployee.employeePicturePath;
+                    }
+
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }

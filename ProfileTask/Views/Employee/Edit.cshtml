@@ -1,0 +1,64 @@
+﻿@model ProfileTask.Models.Employee
+
+@{
+    ViewData["Title"] = "Edit Employee";
+}
+
+<h1>Edit Employee</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="employeeName" class="control-label"></label>
+                <input asp-for="employeeName" class="form-control" />
+                <span asp-validation-for="employeeName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="employeeJop" class="control-label"></label>
+                <input asp-for="employeeJop" class="form-control" />
+                <span asp-validation-for="employeeJop" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="backgroundPicture" class="control-label"></label>
+                <input asp-for="backgroundPicture" class="form-control" type="file" />
+                <span asp-validation-for="backgroundPicture" class="text-danger"></span>
+                <div>
+                    Current Background Picture:
+                    <img src="@Model.backgroundPicturePath" alt="Background Picture" style="max-width: 100px;" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="employeePicture" class="control-label"></label>
+                <input asp-for="employeePicture" class="form-control" type="file" />
+                <span asp-validation-for="employeePicture" class="text-danger"></span>
+                <div>
+                    Current Employee Picture:
+                    <img src="@Model.employeePicturePath" alt="Employee Picture" style="max-width: 100px;" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="about" class="control-label"></label>
+                <textarea asp-for="about" class="form-control"></textarea>
+                <span asp-validation-for="about" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
