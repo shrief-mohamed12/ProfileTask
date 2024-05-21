@@ -9,7 +9,7 @@ namespace ProfileTask.Models
         public string employeeName { get; set; }
         public string employeeJop { get; set; }
         public string backgroundPicture { get; set; }
-        public string bmployeePicture { get; set; }
+        public string employeePicture { get; set; }
         public string about  { get; set; }
         public List<Note> notes { get; set; }
         public List<Contacts> contacts { get; set;}

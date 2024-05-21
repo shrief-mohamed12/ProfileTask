@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProfileTask.Models;
+using System.Threading.Tasks;
 
 namespace ProfileTask.Controllers
 {
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-    using ProfileTask.Models;
-    using System.Threading.Tasks;
-
     public class EmployeeController : Controller
     {
         private readonly ApplicationDbContext _context;

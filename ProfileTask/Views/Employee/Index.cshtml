@@ -1,17 +1,12 @@
 ﻿@model IEnumerable<ProfileTask.Models.Employee>
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
+<h1>Index</h1>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-</head>
-<body>
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -28,7 +23,7 @@
                 @Html.DisplayNameFor(model => model.backgroundPicture)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.bmployeePicture)
+                @Html.DisplayNameFor(model => model.employeePicture)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.about)
@@ -49,19 +44,17 @@
                 @Html.DisplayFor(modelItem => item.backgroundPicture)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.bmployeePicture)
+                @Html.DisplayFor(modelItem => item.employeePicture)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.about)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
 }
     </tbody>
 </table>
-</body>
-</html>
