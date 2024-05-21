@@ -5,8 +5,10 @@ namespace ProfileTask.Models
     public class Note
     {
         [Key]
-        int Id { get; set; }
-        int EmployeeId { get; set; }
+      public  int Id { get; set; }
+      public  int EmployeeId { get; set; }
+        public Employee Employee { get; set; }
+
         public string Title { get; set; }
     }
 }

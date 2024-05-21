@@ -5,7 +5,7 @@ namespace ProfileTask.Models
     public class Employee
     {
         [Key]
-        int Id { get; set; }
+       public  int Id { get; set; }
         public string employeeName { get; set; }
         public string employeeJop { get; set; }
         public string backgroundPicture { get; set; }
