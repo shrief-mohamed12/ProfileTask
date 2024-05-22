@@ -51,12 +51,10 @@ namespace ProfileTask.Controllers
         // POST: Backgrounds/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,BackgroundPicture,dateFrom,dateTo")] Background background)
+        public async Task<IActionResult> Create([Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,dateFrom,dateTo")] Background background)
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
                     if (background.Picture != null)
                     {
                         var backgroundPicturePath = Path.Combine("wwwroot/uploads", background.Picture.FileName);
@@ -70,9 +68,9 @@ namespace ProfileTask.Controllers
 
                     await _context.AddAsync(background);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", background.EmployeeId);
+                   ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", background.EmployeeId);
+                   return RedirectToAction(nameof(Index));
+                
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -86,7 +84,6 @@ namespace ProfileTask.Controllers
                 }
             }
 
-            return View(background);
         }
 
         // GET: Backgrounds/Edit/5
@@ -109,7 +106,7 @@ namespace ProfileTask.Controllers
         // POST: Backgrounds/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,BackgroundPicture,dateFrom,dateTo")] Background background)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,dateFrom,dateTo")] Background background)
         {
             if (id != background.Id)
             {

@@ -54,7 +54,7 @@ namespace ProfileTask.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,EmployeeId,Title,Description,Picture,EducPicturePath,dateFrom,dateTo")] Education education)
         {
-            if (!ModelState.IsValid)
+            try
             {
                 if (education.Picture != null)
                 {
@@ -69,10 +69,21 @@ namespace ProfileTask.Controllers
 
                 await _context.AddAsync(education);
                 await _context.SaveChangesAsync();
+                ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
                 return RedirectToAction(nameof(Index));
+
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
-            return View(education);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EducationExists(education.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return View(education);
+                }
+            }
         }
 
         // GET: Educations/Edit/5
@@ -101,9 +112,6 @@ namespace ProfileTask.Controllers
             {
                 return NotFound();
             }
-
-            if (!ModelState.IsValid)
-            {
                 try
                 {
                     var existingEdicataion = await _context.educations.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
@@ -127,8 +135,11 @@ namespace ProfileTask.Controllers
                         education.EducPicturePath = existingEdicataion.EducPicturePath;
                     }
 
-                    _context.Update(education);
+                     _context.Update(education);
+                     ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
                     await _context.SaveChangesAsync();
+                     return RedirectToAction(nameof(Index));
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -138,13 +149,9 @@ namespace ProfileTask.Controllers
                     }
                     else
                     {
-                        throw;
+                    return View(education);
                     }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
-            return View(education);
+                 }
         }
 
         // GET: Educations/Delete/5
