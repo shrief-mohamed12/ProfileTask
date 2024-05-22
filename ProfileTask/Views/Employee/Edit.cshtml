@@ -30,6 +30,7 @@
             <div class="form-group">
                 <label asp-for="backgroundPicture" class="control-label"></label>
                 <input asp-for="backgroundPicture" class="form-control" type="file" />
+                <span asp-validation-for="backgroundPicture" class="text-danger"></span>
                 <div>
                     Current Background Picture:
                     <img src="@Model.backgroundPicturePath" alt="Background Picture" style="max-width: 100px;" />
@@ -39,6 +40,7 @@
             <div class="form-group">
                 <label asp-for="employeePicture" class="control-label"></label>
                 <input asp-for="employeePicture" class="form-control" type="file" />
+                <span asp-validation-for="employeePicture" class="text-danger"></span>
                 <div>
                     Current Employee Picture:
                     <img src="@Model.employeePicturePath" alt="Employee Picture" style="max-width: 100px;" />
@@ -61,8 +63,4 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+

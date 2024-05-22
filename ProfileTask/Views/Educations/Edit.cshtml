@@ -1,4 +1,4 @@
-﻿@model ProfileTask.Models.Background
+﻿@model ProfileTask.Models.Education
 
 @{
     ViewData["Title"] = "Edit";
@@ -7,17 +7,16 @@
 
 <h1>Edit</h1>
 
-<h4>Background</h4>
+<h4>Education</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="EmployeeId" class="control-label"></label>
                 <select asp-for="EmployeeId" class="form-control" asp-items="@(ViewData["EmployeeId"] as SelectList)"></select>
-                <span asp-validation-for="EmployeeId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
@@ -30,17 +29,12 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="OrgnizeName" class="control-label"></label>
-                <input asp-for="OrgnizeName" class="form-control" />
-                <span asp-validation-for="OrgnizeName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Picture" class="control-label"></label>
                 <input asp-for="Picture" class="form-control" type="file" />
                 <span asp-validation-for="Picture" class="text-danger"></span>
                 <div>
                     Current Picture:
-                    <img src="@Model.BackgroundPicture" alt="Background Picture" style="max-width: 100px;" />
+                    <img src="@Model.EducPicturePath" alt="Background Picture" style="max-width: 100px;" />
                 </div>
             </div>
             <div class="form-group">

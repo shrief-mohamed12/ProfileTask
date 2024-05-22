@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ProfileTask.Models.Background>
+﻿@model IEnumerable<ProfileTask.Models.Education>
 
 @{
     ViewData["Title"] = "Index";
@@ -8,13 +8,13 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary" > Create New</a>
+    <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Employee.employeeName)
+                @Html.DisplayNameFor(model => model.Employee)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Title)
@@ -23,10 +23,7 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OrgnizeName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BackgroundPicture)
+                @Html.DisplayNameFor(model => model.EducPicturePath)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.dateFrom)
@@ -50,22 +47,19 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.OrgnizeName)
-            </td>
-            <td>
-             <img src="@item.BackgroundPicture" alt="Picture" style="max-width: 100px;" />
-            </td>
+                    <img src="@item.EducPicturePath" alt="Picture" style="max-width: 100px;" />
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.dateFrom)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.dateTo)
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
-            </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                </td>
         </tr>
 }
     </tbody>

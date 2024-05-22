@@ -1,83 +1,185 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+using ProfileTask.Models;
 
 namespace ProfileTask.Controllers
 {
-    public class EducationController : Controller
+    public class EducationsController : Controller
     {
-        // GET: EducationController
-        public ActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public EducationsController(ApplicationDbContext context)
         {
+            _context = context;
+        }
+
+        // GET: Educations
+        public async Task<IActionResult> Index()
+        {
+            var result = await _context.educations.Include(e => e.Employee).ToListAsync();
+            return View( result);
+        }
+
+        // GET: Educations/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var education = await _context.educations
+                .Include(e => e.Employee)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (education == null)
+            {
+                return NotFound();
+            }
+
+            return View(education);
+        }
+
+        // GET: Educations/Create
+        public IActionResult Create()
+        {
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName");
             return View();
         }
 
-        // GET: EducationController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: EducationController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: EducationController/Create
+        // POST: Educations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,EmployeeId,Title,Description,Picture,EducPicturePath,dateFrom,dateTo")] Education education)
         {
-            try
+            if (!ModelState.IsValid)
             {
+                if (education.Picture != null)
+                {
+                    var backgroundPicturePath = Path.Combine("wwwroot/uploads", education.Picture.FileName);
+                    using (var stream = new FileStream(backgroundPicturePath, FileMode.Create))
+                    {
+                        await education.Picture.CopyToAsync(stream);
+                    }
+                    // Save the relative path to the database
+                    education.EducPicturePath = backgroundPicturePath.Replace("wwwroot", "");
+                }
+
+                await _context.AddAsync(education);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
+            return View(education);
         }
 
-        // GET: EducationController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Educations/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var education = await _context.educations.FindAsync(id);
+            if (education == null)
+            {
+                return NotFound();
+            }
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
+            return View(education);
         }
 
-        // POST: EducationController/Edit/5
+        // POST: Educations/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeId,Title,Description,Picture,EducPicturePath,dateFrom,dateTo")] Education education)
         {
-            try
+            if (id != education.Id)
             {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                try
+                {
+                    var existingEdicataion = await _context.educations.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+                    if (existingEdicataion == null)
+                    {
+                        return NotFound();
+                    }
+                    if (education.Picture != null)
+                    {
+                        var backgroundPicturePath = Path.Combine("wwwroot/uploads", education.Picture.FileName);
+                        using (var stream = new FileStream(backgroundPicturePath, FileMode.Create))
+                        {
+                            await education.Picture.CopyToAsync(stream);
+                        }
+                        // Save the relative path to the database
+                        education.EducPicturePath = backgroundPicturePath.Replace("wwwroot", "");
+                    }
+                    else
+                    {
+                        // Retain the old background picture path if no new file is provided
+                        education.EducPicturePath = existingEdicataion.EducPicturePath;
+                    }
+
+                    _context.Update(education);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EducationExists(education.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
+            return View(education);
         }
 
-        // GET: EducationController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Educations/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var education = await _context.educations
+                .Include(e => e.Employee)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (education == null)
+            {
+                return NotFound();
+            }
+
+            return View(education);
         }
 
-        // POST: EducationController/Delete/5
-        [HttpPost]
+        // POST: Educations/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var education = await _context.educations.FindAsync(id);
+            _context.educations.Remove(education);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool EducationExists(int id)
+        {
+            return _context.educations.Any(e => e.Id == id);
         }
     }
 }
