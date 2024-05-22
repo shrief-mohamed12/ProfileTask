@@ -82,13 +82,20 @@ namespace ProfileTask.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             
-            } 
-            
-            catch (Exception ex) 
-            { 
-              return null ;
             }
-              
+
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmployeeExists(employee.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return View(employee);
+                }
+            }
+
         }
 
         // GET: Employees/Edit/5
@@ -117,9 +124,6 @@ namespace ProfileTask.Controllers
             {
                 return NotFound();
             }
-
-            if (!ModelState.IsValid)
-            {
                 try
                 {
                     var existingEmployee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
@@ -162,6 +166,8 @@ namespace ProfileTask.Controllers
 
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -171,12 +177,10 @@ namespace ProfileTask.Controllers
                     }
                     else
                     {
-                        throw;
+                    return View(employee);
                     }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(employee);
+            
         }
 
         // GET: Employees/Delete/5
