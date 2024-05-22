@@ -29,10 +29,12 @@
             <div class="form-group">
                 <label asp-for="backgroundPicture" class="control-label"></label>
                 <input asp-for="backgroundPicture" class="form-control" type="file"  />
+                <span asp-validation-for="backgroundPicture" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="employeePicture" class="control-label"></label>
                 <input asp-for="employeePicture" class="form-control" type="file"  />
+                <span asp-validation-for="employeePicture" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="about" class="control-label"></label>
