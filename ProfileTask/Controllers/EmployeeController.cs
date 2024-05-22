@@ -33,6 +33,7 @@ namespace ProfileTask.Controllers
                 .Include(x=>x.notes)
                 .Include(x=>x.backgrounds)
                 .Include(x=>x.contacts)
+                .Include(x=>x.educations)
                 .Include(x=>x.otherExperience)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (employee == null)

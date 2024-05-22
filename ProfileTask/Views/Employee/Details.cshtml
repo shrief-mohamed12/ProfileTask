@@ -1,5 +1,6 @@
 ﻿@model ProfileTask.Models.Employee
 
+
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -7,43 +8,196 @@
 
 <h1>Details</h1>
 
-<div>
-    <h4>Employee</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.employeeName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.employeeName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.employeeJop)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.employeeJop)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.backgroundPicturePath)
-        </dt>
-        <dd class = "col-sm-10">
-            <img src="@Model.backgroundPicturePath" alt="Background Picture" style="max-width: 100px;" />
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.employeePicturePath)
-        </dt>
-        <dd class = "col-sm-10">
-            <img src="@Model.employeePicturePath" alt="Employee Picture" style="max-width: 100px;" />
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.about)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.about)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <img src="@Model.backgroundPicturePath" style="height: 150px;" />
+
+                <div class="card  justify-content-start">
+                    <div class="row g-0">
+                        <div class="col-md-4 p-0">
+                            <img src="@Model.backgroundPicturePath" class="rounded-start w-50" alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">@Model.employeeName</h5>
+                                <p class="card-text">@Model.employeeJop</p>
+                                <p class="card-text"><small class="text-muted">Short note1 | Short note2 | Short note3</small></p>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card ">
+                    <div class="card-body mb-2">
+                        <h4 class="card-title">About <i class="fa-regular fa-pen-to-square"></i></h4>
+                        <p class="card-text">@Model.about</p>
+                        <hr />
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body mb-2">
+                        <div class="card-body ">
+                            <a class="card-title" asp-action="EditContact" asp-controller="Employee">Contacts <i class="fa-regular fa-pen-to-square"></i></a>
+                        </div>
+                         @foreach (var @item in Model.contacts)
+                        {
+                        <div class="mx-2 ">
+                            <h6 class="text-primary">E-Mail</h6>
+                                <p>@item.Email</p>
+                            <hr />
+                            <h6 class="text-primary">Phone Number </h6>
+                                <p>@item.Phone</p>
+                            <hr />
+                            <h6 class="text-primary">Adress </h6>
+                            <p>@item.Adddress</p>
+                        </div>
+                        }
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-body mb-2">
+                        <h5 class="card-title mb-2 text-primary">Background <i class="fa-regular fa-pen-to-square"></i></h5>
+                        @foreach (var @item in Model.backgrounds)
+                        {
+                            <div class="mx-2 mt-1 d-flex">
+                                @*<img src="~/images/logo.png" width="50px" height="50px">*@
+                                <div class="mx-1">
+                                    <div class="col-md-4 p-0">
+                                        <img src="@item.BackgroundPicture" class="rounded-start w-50" alt="...">
+                                    </div>
+                                    <h6>@item.Title</h6>
+                                    <p>@item.OrgnizeName @item.dateFrom.ToShortDateString() -@item.dateTo.Date.ToShortDateString()</p>
+                                </div>
+                            </div>
+                            <p class="mt-1">@item.Description</p>
+                        }
+                        <div>
+                            <button class="btn ">+</button>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-body">
+                        <a class="card-title" asp-action="EditEducation" asp-controller="Education">Education <i class="fa-regular fa-pen-to-square"></i></a>
+                        @foreach (var @education in Model.educations)
+                        {
+                            <div class="mx-2 mt-1 d-flex">
+                                <img src="@education.EducPicturePath" width="50px" height="50px">
+                                <div class="mx-1">
+                                    <h6>@education.Title</h6>
+                                    <p>@education.Description - @education.dateFrom.ToShortDateString() - @education.dateTo.Date.ToShortDateString()</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-body">
+                        <a class="card-title" asp-action="EditCertificate" asp-controller="Certificate">Other Experience: <i class="fa-regular fa-pen-to-square"></i></a>
+                        @foreach (var @item in Model.Licenses)
+                        {
+                            <div class="mx-2 mt-1 d-flex">
+                                <div class="mx-1">
+                                    <h6>@item.Title</h6>
+                                    <p>@item.Description</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-body">
+                        <a class="card-title" asp-action="EditExperience" asp-controller="Experience">Other Experience: <i class="fa-regular fa-pen-to-square"></i></a>
+
+                        @foreach (var @item in Model.otherExperience)
+                        {
+                            <div class="mx-2 mt-1 d-flex">
+                                <div class="mx-1">
+                                    <h6>@item.Title</h6>
+                                    <p>@item.Description</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <hr />
+
+            </div>
+        </div>
+       @*  <div class="col-3 ">
+            <div class="row mt-2">
+                <h5>People with same interest</h5>
+                @foreach (var peopele in ViewBag.people)
+                {
+                    <div class="mx-2 mt-1 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <img src="~/images/1.jpg" width="50px" height="50px">
+                            <div class="mx-1">
+                                <h6>@peopele.Name</h6>
+                                <p>@peopele.Job</p>
+                            </div>
+                        </div>
+                        <div>
+                            <i class="fa-solid fa-retweet"></i>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="row mt-3">
+                <h5>Courses For You</h5>
+                @foreach (var course in ViewBag.courses)
+                {
+                    <div class="mx-2 mt-1 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <img src="~/images/Course.png" width="50px" height="50px">
+                            <div class="mx-3">
+                                <h6>@course.Name</h6>
+                                <p>@course.University</p>
+                            </div>
+                        </div>
+                        <div>
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="row mt-2">
+                <h5>Groups with same interest</h5>
+                @foreach (var peopele in ViewBag.people)
+                {
+                    <div class="mx-2 mt-1 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <img src="~/images/1.jpg" width="50px" height="50px">
+                            <div class="mx-1">
+                                <h6>@peopele.Name</h6>
+                                <p>@peopele.Job</p>
+                            </div>
+                        </div>
+                        <div>
+                            <i class="fa-solid fa-share"></i>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div> *@
+    </div>
 </div>
