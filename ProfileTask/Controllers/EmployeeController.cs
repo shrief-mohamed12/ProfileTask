@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfileTask.Models;
+using ProfileTask.ViewModel;
 
 namespace ProfileTask.Controllers
 {
@@ -18,6 +19,7 @@ namespace ProfileTask.Controllers
         {
             var result = await _context.Employees.ToListAsync();
             return View(result);
+           
         }
 
         // GET: Employees/Details/5
@@ -40,7 +42,8 @@ namespace ProfileTask.Controllers
             {
                 return NotFound();
             }
-
+            List<OtherTable> OtherTable = await _context.otherTables.ToListAsync();
+            ViewBag.OtherTable = OtherTable;
             return View(employee);
         }
 
@@ -98,6 +101,58 @@ namespace ProfileTask.Controllers
             }
 
         }
+        public async Task<IActionResult> EditAbout(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employeeProfile = await _context.Employees.FindAsync(id);
+            if (employeeProfile == null)
+            {
+                return NotFound();
+            }
+
+            return View(employeeProfile);
+        }
+
+        // POST: EmployeeProfiles/EditAbout/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAbout(int id, [Bind("Id,about")] Employee employeeProfile)
+        {
+            if (id != employeeProfile.Id)
+            {
+                return NotFound();
+            }
+
+            var employeeToUpdate = await _context.Employees.FindAsync(id);
+            if (employeeToUpdate == null)
+            {
+                return NotFound();
+            }
+                try
+                {
+                    employeeToUpdate.about = employeeProfile.about;
+                    _context.Update(employeeToUpdate);
+                    await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), "Employee", new { id = employeeProfile.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EmployeeExists(employeeProfile.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                    return View(employeeProfile);
+                    }
+
+                }
+        }
+
 
         // GET: Employees/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -112,80 +167,80 @@ namespace ProfileTask.Controllers
             {
                 return NotFound();
             }
-            return View(employee);
-        }
+            var viewModel = new EditEmployeeViewModel
+            {
+                Id = employee.Id,
+                employeeName = employee.employeeName,
+                employeeJop = employee.employeeJop,
+                backgroundPicturePath = employee.backgroundPicturePath,
+                employeePicturePath = employee.employeePicturePath
+            };
 
+            return View(viewModel);
+        }
         // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-      
-        public async Task<IActionResult> Edit(int id, [Bind("Id,employeeName,employeeJop,backgroundPicture,employeePicture,about")] Employee employee)
+        public async Task<IActionResult> Edit(EditEmployeeViewModel viewModel)
         {
-            if (id != employee.Id)
+            var employee = await _context.Employees.FindAsync(viewModel.Id);
+            if (employee == null)
             {
                 return NotFound();
             }
-                try
+
+            employee.employeeName = viewModel.employeeName;
+            employee.employeeJop = viewModel.employeeJop;
+
+            // Handle Background Picture upload
+            if (viewModel.backgroundPicture != null)
+            {
+                var backgroundFilePath = Path.Combine("wwwroot/uploads", viewModel.backgroundPicture.FileName);
+                using (var stream = new FileStream(backgroundFilePath, FileMode.Create))
                 {
-                    var existingEmployee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
-                    if (existingEmployee == null)
-                    {
-                        return NotFound();
-                    }
-
-                    if (employee.backgroundPicture != null)
-                    {
-                        var backgroundPicturePath = Path.Combine("wwwroot/uploads", employee.backgroundPicture.FileName);
-                        using (var stream = new FileStream(backgroundPicturePath, FileMode.Create))
-                        {
-                            await employee.backgroundPicture.CopyToAsync(stream);
-                        }
-                        // Save the relative path to the database
-                        employee.backgroundPicturePath = backgroundPicturePath.Replace("wwwroot", "");
-                    }
-                    else
-                    {
-                        // Retain the old background picture path if no new file is provided
-                        employee.backgroundPicturePath = existingEmployee.backgroundPicturePath;
-                    }
-
-                    if (employee.employeePicture != null)
-                    {
-                        var employeePicturePath = Path.Combine("wwwroot/uploads", employee.employeePicture.FileName);
-                        using (var stream = new FileStream(employeePicturePath, FileMode.Create))
-                        {
-                            await employee.employeePicture.CopyToAsync(stream);
-                        }
-                        // Save the relative path to the database
-                        employee.employeePicturePath = employeePicturePath.Replace("wwwroot", "");
-                    }
-                    else
-                    {
-                        // Retain the old employee picture path if no new file is provided
-                        employee.employeePicturePath = existingEmployee.employeePicturePath;
-                    }
-
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-
+                    await viewModel.backgroundPicture.CopyToAsync(stream);
                 }
-                catch (DbUpdateConcurrencyException)
+                employee.backgroundPicturePath = "/uploads/" + viewModel.backgroundPicture.FileName;
+            }
+            else
+            {
+                employee.backgroundPicturePath = employee.backgroundPicturePath;
+            }
+
+            // Handle Employee Picture upload
+            if (viewModel.employeePicture != null)
+            {
+                var employeeFilePath = Path.Combine("wwwroot/uploads", viewModel.employeePicture.FileName);
+                using (var stream = new FileStream(employeeFilePath, FileMode.Create))
                 {
-                    if (!EmployeeExists(employee.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                    return View(employee);
-                    }
+                    await viewModel.employeePicture.CopyToAsync(stream);
                 }
-            
+                employee.employeePicturePath = "/uploads/" + viewModel.employeePicture.FileName;
+            }
+            else
+            {
+                employee.employeePicturePath= employee.employeePicturePath;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), "Employee", new { id = viewModel.Id });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Employees.Any(e => e.Id == viewModel.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return View(viewModel);
+                }
+            }
+
         }
-
-        // GET: Employees/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+       public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {

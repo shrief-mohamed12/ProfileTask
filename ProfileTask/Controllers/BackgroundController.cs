@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProfileTask.Models;
 using System.IO;
+using ProfileTask.ViewModel;
 
 namespace ProfileTask.Controllers
 {
@@ -62,7 +63,6 @@ namespace ProfileTask.Controllers
                         {
                             await background.Picture.CopyToAsync(stream);
                         }
-                        // Save the relative path to the database
                         background.BackgroundPicture = backgroundPicturePath.Replace("wwwroot", "");
                     }
 
@@ -89,72 +89,78 @@ namespace ProfileTask.Controllers
         // GET: Backgrounds/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var background = await _context.backgrounds.FindAsync(id);
+
+            var background = await _context.backgrounds.Where(x => x.EmployeeId == id || x.Id == id).FirstOrDefaultAsync(); 
             if (background == null)
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", background.EmployeeId);
-            return View(background);
+            var viewModel = new EditBackgroundViewModel
+            {
+                Id= background.Id,
+                EmployeeId= background.EmployeeId ,
+                Title = background.Title,
+                Description= background.Description,
+                Picture = background.Picture,
+                OrgnizeName= background.OrgnizeName,    
+                BackgroundPicture=background.BackgroundPicture,
+                dateFrom=background.dateFrom,
+                dateTo=background.dateTo,
+            };
+            return View(viewModel);
+
         }
 
         // POST: Backgrounds/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeId,Title,Description,OrgnizeName,Picture,dateFrom,dateTo")] Background background)
+        public async Task<IActionResult> Edit(EditBackgroundViewModel viewModel)
         {
-            if (id != background.Id)
+
+            var background = await _context.backgrounds
+                .FirstOrDefaultAsync(b => b.EmployeeId == viewModel.EmployeeId && b.Id==viewModel.Id );
+            if (background == null)
             {
                 return NotFound();
             }
-                try
+            background.Title = viewModel.Title;
+            background.Description = viewModel.Description;
+            background.OrgnizeName = viewModel.OrgnizeName;
+            try
+            {
+                
+                // Handle file upload
+                if (viewModel.Picture != null)
                 {
-                    var existingBackGround = await _context.backgrounds.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
-                    if (existingBackGround == null)
-                    {
-                        return NotFound();
-                    }
-                    if (background.Picture != null)
-                    {
-                        var backgroundPicturePath = Path.Combine("wwwroot/uploads", background.Picture.FileName);
-                        using (var stream = new FileStream(backgroundPicturePath, FileMode.Create))
-                        {
-                            await background.Picture.CopyToAsync(stream);
-                        }
-                        // Save the relative path to the database
-                        background.BackgroundPicture = backgroundPicturePath.Replace("wwwroot", "");
-                    }
-                    else
-                    {
-                        // Retain the old background picture path if no new file is provided
-                        background.BackgroundPicture = existingBackGround.BackgroundPicture;
-                    }
-
-                    _context.Update(background);
-                    await _context.SaveChangesAsync();
-                    ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", background.EmployeeId);
-                    return RedirectToAction(nameof(Index));
-
-                 }
-                catch (DbUpdateConcurrencyException)
+                var filePath = Path.Combine("wwwroot/uploads", viewModel.Picture.FileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    if (!BackgroundExists(background.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                    return View(background);
-                    }
+                    await viewModel.Picture.CopyToAsync(stream);
                 }
-        }
+                background.BackgroundPicture = "/uploads/" + viewModel.Picture.FileName;
+                }
+                else
+                {
+                background.BackgroundPicture = background.BackgroundPicture;
+                }
+                 _context.Update(background);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), "Employee", new { id = viewModel.EmployeeId });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.backgrounds.Any(b => b.EmployeeId == viewModel.EmployeeId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return View(background);
+                }
+            }
 
-        // GET: Backgrounds/Delete/5
+        }
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

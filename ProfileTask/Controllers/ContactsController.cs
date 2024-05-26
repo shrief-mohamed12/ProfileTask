@@ -1,83 +1,167 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using ProfileTask.Models;
+using ProfileTask.ViewModel;
 
-namespace ProfileTask.Controllers
+public class ContactsController : Controller
 {
-    public class ContactsController : Controller
+    private readonly ApplicationDbContext _context;
+
+    public ContactsController(ApplicationDbContext context)
     {
-        // GET: ContactsController
-        public ActionResult Index()
+        _context = context;
+    }
+
+    // GET: Contacts
+    public async Task<IActionResult> Index()
+    {
+        var contacts = await _context.contacts.Include(c => c.Employee).ToListAsync();
+        return View(contacts);
+    }
+
+    // GET: Contacts/Details/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
         {
-            return View();
+            return NotFound();
         }
 
-        // GET: ContactsController/Details/5
-        public ActionResult Details(int id)
+        var contacts = await _context.contacts
+            .Include(c => c.Employee)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (contacts == null)
         {
-            return View();
+            return NotFound();
         }
 
-        // GET: ContactsController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
+        return View(contacts);
+    }
 
-        // POST: ContactsController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+    // GET: Contacts/Create
+    public IActionResult Create()
+    {
+        ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName");
+        return View();
+    }
+
+    // POST: Contacts/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("Id,EmployeeId,Phone,Address,Email")] Contacts contacts)
+    {
+
+        try
         {
-            try
+            await _context.AddAsync(contacts);
+            await _context.SaveChangesAsync();
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", contacts.EmployeeId);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ContactsExists(contacts.Id))
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
+            else
             {
-                return View();
-            }
-        }
-
-        // GET: ContactsController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: ContactsController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ContactsController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ContactsController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                return View(contacts);
             }
         }
+    }
+
+    // GET: Contacts/Edit/5
+    public async Task<IActionResult> Edit(int? id)
+    {
+
+
+        var contacts = await _context.contacts.Where(x => x.EmployeeId == id || x.Id == id).FirstOrDefaultAsync();
+
+        if (contacts == null)
+        {
+            return NotFound();
+        }
+        var viewModel = new EditContactViewModel
+        {
+            EmployeeId = contacts.EmployeeId,
+            Phone = contacts.Phone,
+            Address = contacts.Address,
+            Email = contacts.Email
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: Contacts/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EditContactViewModel viewModel)
+    {
+        try
+        {
+
+           var contact = await _context.contacts
+           .FirstOrDefaultAsync(c => c.EmployeeId == viewModel.EmployeeId);
+             if (contact == null)
+             {
+                 return NotFound();
+             }
+
+            contact.Phone = viewModel.Phone;
+            contact.Address = viewModel.Address;
+            contact.Email = viewModel.Email;
+
+            _context.Update(contact);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), "Employee", new { id = viewModel.EmployeeId });
+
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_context.contacts.Any(c => c.EmployeeId == viewModel.EmployeeId))
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(viewModel);
+            }
+        }
+
+    }
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var contacts = await _context.contacts
+            .Include(c => c.Employee)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (contacts == null)
+        {
+            return NotFound();
+        }
+
+        return View(contacts);
+    }
+
+    // POST: Contacts/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var contacts = await _context.contacts.FindAsync(id);
+        _context.contacts.Remove(contacts);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    private bool ContactsExists(int id)
+    {
+        return _context.contacts.Any(e => e.Id == id);
     }
 }
