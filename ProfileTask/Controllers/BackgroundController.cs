@@ -23,6 +23,11 @@ namespace ProfileTask.Controllers
             return View( result);
         }
 
+        public async Task<IActionResult> ListByID(int Id )
+        {
+            var result = await _context.backgrounds.Include(b => b.Employee).Where(x=>x.EmployeeId==Id).ToListAsync();
+            return View(result);
+        }
         // GET: Backgrounds/Details/5
         public async Task<IActionResult> Details(int? id)
         {

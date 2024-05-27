@@ -19,6 +19,11 @@ public class ContactsController : Controller
         var contacts = await _context.contacts.Include(c => c.Employee).ToListAsync();
         return View(contacts);
     }
+    public async Task<IActionResult> ListByID(int Id)
+    {
+        var result = await _context.contacts.Include(b => b.Employee).Where(x => x.EmployeeId == Id).ToListAsync();
+        return View(result);
+    }
 
     // GET: Contacts/Details/5
     public async Task<IActionResult> Details(int? id)

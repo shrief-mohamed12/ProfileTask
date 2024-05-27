@@ -64,7 +64,7 @@
                     <div class="card-body mb-2">
                         <div class="card-body ">
                             <h5 class="card-title mb-2 text-primary">
-                                Contacts   <a asp-action="Edit" asp-controller="Contacts" asp-route-id="@Model.Id">  <i style='font-size:24px' class='far'>&#xf044;</i></a>
+                                    Contacts   <a asp-action="ListByID" asp-controller="Contacts" asp-route-id="@Model.Id">  <i style='font-size:24px' class='far'>&#xf044;</i></a>
                             </h5>
                         </div>
                          @foreach (var @item in Model.contacts)
@@ -90,7 +90,7 @@
                     <div class="card-body mb-2">
                         <h5 class="card-title mb-2 text-primary">
                             
-                            Background  <a asp-action="Index" asp-controller="Background" asp-route-id="@Model.Id">  <i style='font-size:24px' class='far'>&#xf044;</i></a>
+                            Background  <a asp-action="ListByID" asp-controller="Background" asp-route-id="@Model.Id">  <i style='font-size:24px' class='far'>&#xf044;</i></a>
                         </h5>
                         @foreach (var @item in Model.backgrounds)
                         {
