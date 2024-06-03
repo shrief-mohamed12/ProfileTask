@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
+using ProfileTask.Helper;
 using ProfileTask.Models;
 using ProfileTask.ViewModel;
 
@@ -17,6 +19,7 @@ namespace ProfileTask.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
+          
             var result = await _context.Employees.ToListAsync();
             return View(result);
            

@@ -1,4 +1,7 @@
-﻿namespace ProfileTask.Helper
+﻿using Microsoft.EntityFrameworkCore;
+using ProfileTask.Models;
+
+namespace ProfileTask.Helper
 {
     public static class DateHelper
     {
@@ -10,5 +13,37 @@
             return $"{dateFromFormatted} - {dateToFormatted}";
         }
     }
+
+    public class demo
+    {
+        private readonly ApplicationDbContext _db;
+        public demo(ApplicationDbContext db)
+        {
+            _db= db;
+        }
+        public async void GenerateEmployeesAndSetTheirData()
+        {
+            var employees = new List<Employee>()
+            {
+                new Employee
+                {
+                    Id = 0,
+                    employeeName = "Ahmed"
+                },
+                new Employee
+                {
+                    Id = 0,
+                    employeeName = "Ahmed1"
+                }
+            };
+
+            await _db.Employees.AddRangeAsync(employees);
+            await _db.SaveChangesAsync();
+
+            employees[0].about = "test";
+            await _db.SaveChangesAsync();
+        }
+    }
+
 
 }
