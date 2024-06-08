@@ -70,8 +70,8 @@ namespace ProfileTask.Controllers
                 await _context.AddAsync(education);
                 await _context.SaveChangesAsync();
                 ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "employeeName", education.EmployeeId);
-                return RedirectToAction(nameof(Index));
-
+                var educations = _context.educations.Include(e => e.Employee).ToList();
+                return PartialView("Index", educations);
             }
             catch (DbUpdateConcurrencyException)
             {
